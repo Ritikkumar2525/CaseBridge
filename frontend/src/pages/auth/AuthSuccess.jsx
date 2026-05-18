@@ -15,8 +15,9 @@ export default function AuthSuccess() {
       return;
     }
     
-    // 1. Save token in localStorage
+    // 1. Save token in localStorage under both keys to ensure full compatibility
     localStorage.setItem('casebridge_token', token);
+    localStorage.setItem('token', token);
     
     // 2. Fetch authenticated user profile
     authAPI.me()
@@ -25,11 +26,19 @@ export default function AuthSuccess() {
         // 3. Save user in localStorage
         localStorage.setItem('casebridge_user', JSON.stringify(userData));
         
-        // 4. Redirect to /app which handles role-appropriate routing
-        window.location.href = '/app';
+        // 4. Redirect to role-appropriate dashboard route
+        const routes = {
+          super_admin: '/admin/dashboard',
+          org_admin: '/org/dashboard',
+          staff: '/staff/dashboard',
+          user: '/dashboard',
+        };
+        const targetRoute = routes[userData.role] || '/dashboard';
+        window.location.href = targetRoute;
       })
       .catch(err => {
         localStorage.removeItem('casebridge_token');
+        localStorage.removeItem('token');
         setError('Authentication failed. Please try again.');
       });
   }, [searchParams]);
