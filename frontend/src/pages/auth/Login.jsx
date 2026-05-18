@@ -4,7 +4,6 @@ import { useAuth } from '../../contexts/AuthContext';
 import { Layers, ArrowRight, ArrowLeft, Loader2, ShieldAlert, Shield, Users, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import AuthVisual from './AuthVisual';
-import { useGoogleLogin } from '@react-oauth/google';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -26,29 +25,10 @@ export default function Login() {
     }, 3000);
   };
 
-  const executeLoginGoogle = async (credential, loginRole = selectedRole) => {
-    setError('');
-    setLoading(true);
-    try {
-      const user = await googleLogin(credential, loginRole);
-      const routes = {
-        super_admin: '/admin/dashboard',
-        org_admin: '/org/dashboard',
-        staff: '/staff/dashboard',
-        user: '/dashboard',
-      };
-      navigate(routes[user.role] || '/dashboard');
-    } catch (err) {
-      setError(err.response?.data?.message || 'Google Login failed.');
-    } finally {
-      setLoading(false);
-    }
+  const handleGoogleLogin = () => {
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+    window.location.href = `${apiUrl}/auth/google`;
   };
-
-  const signInWithGoogle = useGoogleLogin({
-    onSuccess: (codeResponse) => executeLoginGoogle(codeResponse.access_token),
-    onError: () => setError('Google Authentication could not be completed.')
-  });
 
   const executeLogin = async (loginEmail, loginPassword, loginRole = selectedRole) => {
     setError('');
@@ -209,7 +189,7 @@ export default function Login() {
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg blur opacity-20 group-hover:opacity-50 transition duration-500"></div>
                 <button
                   type="button"
-                  onClick={() => signInWithGoogle()}
+                  onClick={handleGoogleLogin}
                   className="relative w-full flex items-center justify-center gap-3 px-4 py-2.5 bg-[var(--color-bg-tertiary)] hover:bg-[var(--color-bg-hover)] border border-[var(--color-border)] rounded-lg text-[var(--color-text-primary)] font-medium transition-all duration-300"
                 >
                   <svg viewBox="0 0 24 24" className="w-5 h-5">

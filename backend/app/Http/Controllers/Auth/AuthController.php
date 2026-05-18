@@ -322,10 +322,8 @@ class AuthController extends Controller
 
             $token = auth('api')->login($user);
             
-            $frontendUrl = env('FRONTEND_URL', 'http://localhost:5173');
-            
-            // Redirect back to frontend login page with token and user details in query string
-            return redirect($frontendUrl . '/login?token=' . $token . '&name=' . urlencode($user->name) . '&role=' . $user->role);
+            // Redirect back to frontend success page with token
+            return redirect(env('FRONTEND_URL', 'http://localhost:5173') . '/auth/success?token=' . $token);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Google Authentication failed.', 'error' => $e->getMessage()], 400);
         }

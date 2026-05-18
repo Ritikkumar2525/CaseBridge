@@ -15,6 +15,7 @@ const FeatureDetail = React.lazy(() => import('./pages/public/FeatureDetail'));
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import ForgotPassword from './pages/auth/ForgotPassword';
+import AuthSuccess from './pages/auth/AuthSuccess';
 
 // Dashboard Pages
 import UserDashboard from './pages/dashboard/UserDashboard';
@@ -77,6 +78,7 @@ export default function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/auth/success" element={<AuthSuccess />} />
 
           {/* Protected Routes */}
           <Route element={<AppLayout />}>
