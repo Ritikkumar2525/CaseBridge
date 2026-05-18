@@ -34,7 +34,7 @@ return [
 
         'mongodb' => [
             'driver' => 'mongodb',
-            'dsn' => env('DB_DSN'),
+            'dsn' => env('MONGODB_URI'),
             'database' => env('DB_DATABASE', 'casebridge'),
         ],
 
