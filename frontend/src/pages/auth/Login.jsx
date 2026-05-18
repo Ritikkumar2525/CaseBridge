@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { Layers, ArrowRight, ArrowLeft, Loader2 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Layers, ArrowRight, ArrowLeft, Loader2, ShieldAlert, Shield, Users, User } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import AuthVisual from './AuthVisual';
 import { useGoogleLogin } from '@react-oauth/google';
 
@@ -12,8 +12,19 @@ export default function Login() {
   const [selectedRole, setSelectedRole] = useState('user');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [toast, setToast] = useState('');
   const { login, googleLogin } = useAuth();
   const navigate = useNavigate();
+
+  const handleDemoClick = (demoEmail, demoRole) => {
+    setEmail(demoEmail);
+    setPassword('Demo@123');
+    setSelectedRole(demoRole);
+    setToast('Demo credentials applied successfully');
+    setTimeout(() => {
+      setToast('');
+    }, 3000);
+  };
 
   const executeLoginGoogle = async (credential, loginRole = selectedRole) => {
     setError('');
@@ -214,21 +225,31 @@ export default function Login() {
           </form>
 
           {/* Demo credentials */}
-          <div className="mt-6 p-4 rounded-lg bg-[var(--color-bg-tertiary)] border border-[var(--color-border)]">
-            <p className="text-xs font-medium text-[var(--color-text-secondary)] mb-2 uppercase tracking-wider">Demo Accounts</p>
-            <div className="space-y-1 text-xs text-[var(--color-text-muted)]">
-              <button onClick={() => { setEmail('admin@casebridge.dev'); setPassword('password123'); setSelectedRole('super_admin'); executeLogin('admin@casebridge.dev', 'password123', 'super_admin'); }} className="block w-full text-left hover:text-[var(--color-accent)] transition-colors">
-                <span className="text-[var(--color-text-secondary)]">Super Admin:</span> admin@casebridge.dev
-              </button>
-              <button onClick={() => { setEmail('rajesh@dtu.edu'); setPassword('password123'); setSelectedRole('org_admin'); executeLogin('rajesh@dtu.edu', 'password123', 'org_admin'); }} className="block w-full text-left hover:text-[var(--color-accent)] transition-colors">
-                <span className="text-[var(--color-text-secondary)]">Org Admin:</span> rajesh@dtu.edu
-              </button>
-              <button onClick={() => { setEmail('amit@dtu.edu'); setPassword('password123'); setSelectedRole('staff'); executeLogin('amit@dtu.edu', 'password123', 'staff'); }} className="block w-full text-left hover:text-[var(--color-accent)] transition-colors">
-                <span className="text-[var(--color-text-secondary)]">Staff:</span> amit@dtu.edu
-              </button>
-              <button onClick={() => { setEmail('arjun@example.com'); setPassword('password123'); setSelectedRole('user'); executeLogin('arjun@example.com', 'password123', 'user'); }} className="block w-full text-left hover:text-[var(--color-accent)] transition-colors">
-                <span className="text-[var(--color-text-secondary)]">User:</span> arjun@example.com
-              </button>
+          <div className="mt-6 p-4 rounded-xl bg-[var(--color-bg-tertiary)] border border-[var(--color-border)]">
+            <p className="text-xs font-semibold text-[var(--color-text-secondary)] mb-3 uppercase tracking-wider">Demo Accounts</p>
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { role: 'super_admin', label: 'Super Admin', email: 'admin@casebridge.dev', icon: ShieldAlert },
+                { role: 'org_admin', label: 'Org Admin', email: 'rajesh@dtu.edu', icon: Shield },
+                { role: 'staff', label: 'Staff', email: 'amit@dtu.edu', icon: Users },
+                { role: 'user', label: 'User', email: 'arjun@example.com', icon: User },
+              ].map((account) => {
+                const Icon = account.icon;
+                return (
+                  <button
+                    key={account.role}
+                    type="button"
+                    onClick={() => handleDemoClick(account.email, account.role)}
+                    className="flex flex-col items-start p-2.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-primary)] hover:border-[var(--color-accent)] hover:bg-[var(--color-bg-hover)] text-left transition-all duration-300 hover:scale-[1.02] cursor-pointer"
+                  >
+                    <div className="flex items-center gap-1.5 mb-1 text-[var(--color-text-primary)]">
+                      <Icon size={14} className="text-[var(--color-accent)]" />
+                      <span className="text-xs font-semibold">{account.label}</span>
+                    </div>
+                    <span className="text-[10px] text-[var(--color-text-muted)] truncate w-full">{account.email}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -240,6 +261,23 @@ export default function Login() {
           </p>
         </motion.div>
       </div>
+
+      {/* Toast Notification */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.9 }}
+            className="fixed bottom-6 right-6 z-50 bg-[var(--color-bg-primary)] border border-green-500/30 text-[var(--color-text-primary)] px-4 py-3 rounded-xl shadow-xl flex items-center gap-3 backdrop-blur-md"
+          >
+            <div className="w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center text-green-500 font-semibold text-xs">
+              ✓
+            </div>
+            <span className="text-xs font-medium">{toast}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

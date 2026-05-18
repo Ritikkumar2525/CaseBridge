@@ -7,6 +7,7 @@ use App\Models\Organization;
 use App\Models\Complaint;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
 
 /**
  * Database Seeder
@@ -23,143 +24,80 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // ─── Super Admin ─────────────────────────────────────────
-        $this->call([
-            UserSeeder::class,
-        ]);
-        $superAdmin = User::where('email', 'admin@casebridge.dev')->first();
+        // ─── 1. Super Admin ─────────────────────────────────────────
+        // Seed Super Admin first (no organization needed)
+        $superAdmin = User::updateOrCreate(
+            ['email' => 'admin@casebridge.dev'],
+            [
+                'name' => 'Super Admin',
+                'password' => Hash::make('Demo@123'),
+                'role' => 'super_admin',
+                'is_active' => true,
+            ]
+        );
 
-        echo "✅ Super Admin created: admin@casebridge.dev / Admin@#2005\n";
+        echo "✅ Super Admin created: admin@casebridge.dev / Demo@123\n";
 
-        // ─── Organizations ───────────────────────────────────────
+        // ─── 2. Organizations ───────────────────────────────────────
+        $college = Organization::updateOrCreate(
+            ['slug' => 'delhi-tech-university'],
+            [
+                'name' => 'Delhi Technical University',
+                'type' => 'college',
+                'description' => 'A premier technical university in Delhi',
+                'contact_email' => 'admin@dtu.edu',
+                'contact_phone' => '+91-11-27871018',
+                'address' => 'Shahbad Daulatpur, Bawana Road, Delhi-110042',
+                'created_by' => (string) $superAdmin->_id,
+                'settings' => [
+                    'auto_assign' => false,
+                    'escalation_days' => 5,
+                    'categories' => ['Academic', 'Hostel', 'Infrastructure', 'Library', 'Sports', 'General'],
+                ],
+            ]
+        );
 
-        $college = Organization::create([
-            'name' => 'Delhi Technical University',
-            'slug' => 'delhi-tech-university',
-            'type' => 'college',
-            'description' => 'A premier technical university in Delhi',
-            'contact_email' => 'admin@dtu.edu',
-            'contact_phone' => '+91-11-27871018',
-            'address' => 'Shahbad Daulatpur, Bawana Road, Delhi-110042',
-            'created_by' => (string) $superAdmin->_id,
-            'settings' => [
-                'auto_assign' => false,
-                'escalation_days' => 5,
-                'categories' => ['Academic', 'Hostel', 'Infrastructure', 'Library', 'Sports', 'General'],
-            ],
-        ]);
-
-        $hospital = Organization::create([
-            'name' => 'City General Hospital',
-            'slug' => 'city-general-hospital',
-            'type' => 'hospital',
-            'description' => 'Multi-specialty hospital serving the community',
-            'contact_email' => 'admin@citygeneral.org',
-            'contact_phone' => '+91-11-23456789',
-            'address' => 'Connaught Place, New Delhi-110001',
-            'created_by' => (string) $superAdmin->_id,
-            'settings' => [
-                'auto_assign' => true,
-                'escalation_days' => 3,
-                'categories' => ['Patient Care', 'Billing', 'Emergency', 'Staff', 'Facilities', 'General'],
-            ],
-        ]);
+        $hospital = Organization::updateOrCreate(
+            ['slug' => 'city-general-hospital'],
+            [
+                'name' => 'City General Hospital',
+                'type' => 'hospital',
+                'description' => 'Multi-specialty hospital serving the community',
+                'contact_email' => 'admin@citygeneral.org',
+                'contact_phone' => '+91-11-23456789',
+                'address' => 'Connaught Place, New Delhi-110001',
+                'created_by' => (string) $superAdmin->_id,
+                'settings' => [
+                    'auto_assign' => true,
+                    'escalation_days' => 3,
+                    'categories' => ['Patient Care', 'Billing', 'Emergency', 'Staff', 'Facilities', 'General'],
+                ],
+            ]
+        );
 
         echo "✅ 2 Organizations created\n";
 
-        // ─── Organization Admins ─────────────────────────────────
-
-        $collegeAdmin = User::create([
-            'name' => 'Dr. Rajesh Kumar',
-            'email' => 'rajesh@dtu.edu',
-            'password' => 'password123',
-            'role' => 'org_admin',
-            'organization_id' => (string) $college->_id,
+        // ─── 3. Run User Seeder (Idempotent updateOrCreate) ────────
+        // This will create all org admins, staff members, and regular users with Demo@123 password
+        $this->call([
+            UserSeeder::class,
         ]);
 
-        $hospitalAdmin = User::create([
-            'name' => 'Dr. Priya Sharma',
-            'email' => 'priya@citygeneral.org',
-            'password' => 'password123',
-            'role' => 'org_admin',
-            'organization_id' => (string) $hospital->_id,
-        ]);
+        echo "✅ All demo accounts seeded successfully!\n";
 
-        echo "✅ 2 Org Admins created\n";
+        // Fetch users to assign complaints correctly
+        $collegeStaff1 = User::where('email', 'amit@dtu.edu')->first();
+        $collegeStaff2 = User::where('email', 'neha@dtu.edu')->first();
+        $hospitalStaff1 = User::where('email', 'ravi@citygeneral.org')->first();
+        $hospitalStaff2 = User::where('email', 'sunita@citygeneral.org')->first();
 
-        // ─── Staff Members ───────────────────────────────────────
+        $user1 = User::where('email', 'arjun@example.com')->first();
+        $user2 = User::where('email', 'kavita@example.com')->first();
+        $user3 = User::where('email', 'rohit@example.com')->first();
+        $user4 = User::where('email', 'meera@example.com')->first();
 
-        $collegeStaff1 = User::create([
-            'name' => 'Amit Verma',
-            'email' => 'amit@dtu.edu',
-            'password' => 'password123',
-            'role' => 'staff',
-            'organization_id' => (string) $college->_id,
-        ]);
-
-        $collegeStaff2 = User::create([
-            'name' => 'Neha Gupta',
-            'email' => 'neha@dtu.edu',
-            'password' => 'password123',
-            'role' => 'staff',
-            'organization_id' => (string) $college->_id,
-        ]);
-
-        $hospitalStaff1 = User::create([
-            'name' => 'Ravi Singh',
-            'email' => 'ravi@citygeneral.org',
-            'password' => 'password123',
-            'role' => 'staff',
-            'organization_id' => (string) $hospital->_id,
-        ]);
-
-        $hospitalStaff2 = User::create([
-            'name' => 'Sunita Patel',
-            'email' => 'sunita@citygeneral.org',
-            'password' => 'password123',
-            'role' => 'staff',
-            'organization_id' => (string) $hospital->_id,
-        ]);
-
-        echo "✅ 4 Staff members created\n";
-
-        // ─── Regular Users ───────────────────────────────────────
-
-        $user1 = User::create([
-            'name' => 'Arjun Mehta',
-            'email' => 'arjun@example.com',
-            'password' => 'password123',
-            'role' => 'user',
-            'organization_id' => (string) $college->_id,
-        ]);
-
-        $user2 = User::create([
-            'name' => 'Kavita Joshi',
-            'email' => 'kavita@example.com',
-            'password' => 'password123',
-            'role' => 'user',
-            'organization_id' => (string) $college->_id,
-        ]);
-
-        $user3 = User::create([
-            'name' => 'Rohit Sharma',
-            'email' => 'rohit@example.com',
-            'password' => 'password123',
-            'role' => 'user',
-            'organization_id' => (string) $hospital->_id,
-        ]);
-
-        $user4 = User::create([
-            'name' => 'Meera Kapoor',
-            'email' => 'meera@example.com',
-            'password' => 'password123',
-            'role' => 'user',
-            'organization_id' => (string) $hospital->_id,
-        ]);
-
-        echo "✅ 4 Users created\n";
-
-        // ─── Sample Complaints ───────────────────────────────────
+        // ─── 4. Sample Complaints (Delete old first to keep it clean) ─
+        Complaint::truncate();
 
         $complaints = [
             [
@@ -268,11 +206,11 @@ class DatabaseSeeder extends Seeder
             Complaint::create($data);
         }
 
-        echo "✅ 10 Sample complaints created\n";
+        echo "✅ 10 Sample complaints seeded\n";
         echo "\n🎉 Seeding complete! You can login with:\n";
-        echo "   Super Admin:  admin@casebridge.dev     / password123\n";
-        echo "   Org Admin:    rajesh@dtu.edu            / password123\n";
-        echo "   Staff:        amit@dtu.edu              / password123\n";
-        echo "   User:         arjun@example.com         / password123\n";
+        echo "   Super Admin:  admin@casebridge.dev     / Demo@123\n";
+        echo "   Org Admin:    rajesh@dtu.edu            / Demo@123\n";
+        echo "   Staff:        amit@dtu.edu              / Demo@123\n";
+        echo "   User:         arjun@example.com         / Demo@123\n";
     }
 }
