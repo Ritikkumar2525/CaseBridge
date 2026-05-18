@@ -24,15 +24,12 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // ─── Super Admin ─────────────────────────────────────────
-        $superAdmin = User::create([
-            'name' => 'Super Admin',
-            'email' => 'admin@casebridge.dev',
-            'password' => 'password123',
-            'role' => 'super_admin',
-            'is_active' => true,
+        $this->call([
+            UserSeeder::class,
         ]);
+        $superAdmin = User::where('email', 'admin@casebridge.dev')->first();
 
-        echo "✅ Super Admin created: admin@casebridge.dev / password123\n";
+        echo "✅ Super Admin created: admin@casebridge.dev / Admin@#2005\n";
 
         // ─── Organizations ───────────────────────────────────────
 
