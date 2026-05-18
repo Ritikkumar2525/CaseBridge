@@ -14,6 +14,7 @@ use App\Mail\OtpMail;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
+use Laravel\Socialite\Facades\Socialite;
 
 /**
  * Authentication Controller
@@ -268,6 +269,65 @@ class AuthController extends Controller
             ]);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Invalid or expired Google Token.', 'error' => $e->getMessage()], 401);
+        }
+    }
+
+    /**
+     * Redirect the user to the Google authentication page.
+     *
+     * GET /api/auth/google
+     */
+    public function googleRedirect()
+    {
+        return Socialite::driver('google')->stateless()->redirect();
+    }
+
+    /**
+     * Obtain the user information from Google and authenticate.
+     *
+     * GET /api/auth/google/callback
+     */
+    public function googleCallback()
+    {
+        try {
+            $googleUser = Socialite::driver('google')->stateless()->user();
+
+            if (!$googleUser->getEmail()) {
+                return response()->json(['success' => false, 'message' => 'No email returned from Google.'], 400);
+            }
+
+            $user = User::where('email', $googleUser->getEmail())->first();
+
+            if (!$user) {
+                // Auto register new Google user
+                $user = User::create([
+                    'name' => $googleUser->getName() ?? 'Google User',
+                    'email' => $googleUser->getEmail(),
+                    'password' => Str::random(24),
+                    'role' => 'user', // default role
+                    'is_active' => true,
+                    'google_id' => $googleUser->getId(),
+                    'avatar' => $googleUser->getAvatar(),
+                ]);
+            } else {
+                // Update google_id and avatar if it was a manual registration converted to Google SSO
+                if (!$user->google_id) {
+                    $user->google_id = $googleUser->getId();
+                    if ($googleUser->getAvatar()) {
+                        $user->avatar = $googleUser->getAvatar();
+                    }
+                    $user->save();
+                }
+            }
+
+            $token = auth('api')->login($user);
+            
+            $frontendUrl = env('FRONTEND_URL', 'http://localhost:5173');
+            
+            // Redirect back to frontend login page with token and user details in query string
+            return redirect($frontendUrl . '/login?token=' . $token . '&name=' . urlencode($user->name) . '&role=' . $user->role);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Google Authentication failed.', 'error' => $e->getMessage()], 400);
         }
     }
 

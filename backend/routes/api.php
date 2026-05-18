@@ -30,7 +30,9 @@ Route::prefix('auth')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
     Route::post('/reset-password-otp', [AuthController::class, 'resetPasswordOtp']);
-    Route::post('/google', [AuthController::class, 'googleLogin']);
+
+    Route::get('/google', [AuthController::class, 'googleRedirect']);
+    Route::get('/google/callback', [AuthController::class, 'googleCallback']);
 });
 
 // ─── Protected Routes (JWT Required) ─────────────────────────────
