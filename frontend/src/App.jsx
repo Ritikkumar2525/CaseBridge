@@ -15,7 +15,7 @@ const FeatureDetail = React.lazy(() => import('./pages/public/FeatureDetail'));
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import ForgotPassword from './pages/auth/ForgotPassword';
-import AuthSuccess from './pages/auth/AuthSuccess';
+import AuthSuccess from './pages/AuthSuccess';
 
 // Dashboard Pages
 import UserDashboard from './pages/dashboard/UserDashboard';
