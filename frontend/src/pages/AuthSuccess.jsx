@@ -10,7 +10,9 @@ export default function AuthSuccess() {
 
     if (token) {
       localStorage.setItem("token", token);
-      localStorage.setItem("casebridge_token", token); // Safe fallback to support casebridge API client
+      localStorage.setItem("casebridge_token", token); // Critical fallback safeguard for existing API client requests
+
+      // redirect to dashboard
       navigate("/dashboard");
     } else {
       navigate("/login");
