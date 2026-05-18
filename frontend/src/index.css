@@ -1,0 +1,488 @@
+@import "tailwindcss";
+
+/* ─── CaseBridge Design System ─── */
+
+/* ═══ DARK THEME (Default) ═══ */
+@theme {
+  --color-bg-primary: #000000;
+  --color-bg-secondary: #0a0a0a;
+  --color-bg-tertiary: #141414;
+  --color-bg-card: #0f0f0f;
+  --color-bg-hover: #1a1a1a;
+  --color-bg-active: #222222;
+
+  --color-border: #1f1f1f;
+  --color-border-hover: #333333;
+  --color-border-subtle: #171717;
+
+  --color-text-primary: #fafafa;
+  --color-text-secondary: #a1a1a1;
+  --color-text-muted: #666666;
+  --color-text-dimmed: #444444;
+
+  --color-accent: #3b82f6;
+  --color-accent-hover: #2563eb;
+  --color-accent-subtle: rgba(59, 130, 246, 0.08);
+
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-info: #06b6d4;
+
+  --color-status-created: #8b5cf6;
+  --color-status-assigned: #3b82f6;
+  --color-status-in-progress: #f59e0b;
+  --color-status-escalated: #ef4444;
+  --color-status-resolved: #22c55e;
+  --color-status-closed: #6b7280;
+
+  --color-priority-low: #22c55e;
+  --color-priority-medium: #f59e0b;
+  --color-priority-high: #ef4444;
+
+  --font-heading: 'Inter', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+}
+
+/* ═══ LIGHT THEME (Crisp White & Gray) ═══ */
+:root[data-theme="light"] {
+  --color-bg-primary: #f9fafb;
+  --color-bg-secondary: #f3f4f6;
+  --color-bg-tertiary: #e5e7eb;
+  --color-bg-card: #ffffff;
+  --color-bg-hover: #e5e7eb;
+  --color-bg-active: #d1d5db;
+
+  --color-border: #e5e7eb;
+  --color-border-hover: #d1d5db;
+  --color-border-subtle: #f3f4f6;
+
+  --color-text-primary: #111827;
+  --color-text-secondary: #374151;
+  --color-text-muted: #6b7280;
+  --color-text-dimmed: #9ca3af;
+
+  --color-accent: #111827;
+  --color-accent-hover: #374151;
+  --color-accent-subtle: rgba(17, 24, 39, 0.08);
+
+  --color-success: #16a34a;
+  --color-warning: #d97706;
+  --color-error: #dc2626;
+  --color-info: #0284c7;
+
+  --color-status-created: #7c3aed;
+  --color-status-assigned: #2563eb;
+  --color-status-in-progress: #d97706;
+  --color-status-escalated: #dc2626;
+  --color-status-resolved: #16a34a;
+  --color-status-closed: #6b7280;
+
+  --color-priority-low: #16a34a;
+  --color-priority-medium: #d97706;
+  --color-priority-high: #dc2626;
+}
+
+
+
+html {
+  scroll-behavior: smooth;
+}
+
+:root[data-theme="dark"] html,
+:root:not([data-theme]) html {
+  color-scheme: dark;
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ─── Scrollbar ─── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-hover);
+}
+
+/* ─── Animations ─── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.3); }
+  50% { box-shadow: 0 0 0 8px rgba(59, 130, 246, 0); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+@keyframes grid-fade {
+  0% { opacity: 0.03; }
+  50% { opacity: 0.06; }
+  100% { opacity: 0.03; }
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes typing-dot {
+  0%, 20% { opacity: 0.3; }
+  50% { opacity: 1; }
+  80%, 100% { opacity: 0.3; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+.animate-slide-in {
+  animation: slideIn 0.3s ease-out forwards;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* ─── Glass Effect (Dark) ─── */
+.glass {
+  background: rgba(10, 10, 10, 0.7);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.glass-strong {
+  background: rgba(10, 10, 10, 0.92);
+  backdrop-filter: blur(32px) saturate(200%);
+  -webkit-backdrop-filter: blur(32px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ─── Glass Effect (Light — Gray) ─── */
+:root[data-theme="light"] .glass {
+  background: rgba(249, 250, 251, 0.8);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(17, 24, 39, 0.08);
+}
+
+:root[data-theme="light"] .glass-strong {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(32px) saturate(200%);
+  -webkit-backdrop-filter: blur(32px) saturate(200%);
+  border: 1px solid rgba(17, 24, 39, 0.12);
+}
+
+/* ─── Gradient Text (Dark) ─── */
+.gradient-text {
+  background: linear-gradient(180deg, #fff 0%, rgba(255,255,255,0.6) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-text-accent {
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #06b6d4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-text-hero {
+  background: linear-gradient(180deg, #ffffff 30%, rgba(255,255,255,0.4) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── Gradient Text (Light — Gray) ─── */
+:root[data-theme="light"] .gradient-text {
+  background: linear-gradient(180deg, #111827 0%, rgba(55, 65, 81, 0.8) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+:root[data-theme="light"] .gradient-text-hero {
+  background: linear-gradient(180deg, #111827 30%, rgba(55, 65, 81, 0.6) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── Hero Grid Background ─── */
+.hero-grid {
+  background-image:
+    linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+:root[data-theme="light"] .hero-grid {
+  background-image:
+    linear-gradient(rgba(17, 24, 39, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(17, 24, 39, 0.05) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+/* ─── Radial Glow ─── */
+.glow-blue {
+  background: radial-gradient(600px circle at var(--glow-x, 50%) var(--glow-y, 0%), rgba(59, 130, 246, 0.08), transparent 60%);
+}
+
+.glow-purple {
+  background: radial-gradient(600px circle at 50% 50%, rgba(139, 92, 246, 0.06), transparent 60%);
+}
+
+.glow-top {
+  background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(59, 130, 246, 0.12), transparent);
+}
+
+:root[data-theme="light"] .glow-blue {
+  background: radial-gradient(600px circle at var(--glow-x, 50%) var(--glow-y, 0%), rgba(17, 24, 39, 0.04), transparent 60%);
+}
+
+:root[data-theme="light"] .glow-purple {
+  background: radial-gradient(600px circle at 50% 50%, rgba(107, 114, 128, 0.05), transparent 60%);
+}
+
+:root[data-theme="light"] .glow-top {
+  background: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(17, 24, 39, 0.06), transparent);
+}
+
+/* ─── Section Dividers ─── */
+.section-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-border), transparent);
+}
+
+/* ─── Feature Card Hover ─── */
+.feature-card {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.feature-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+:root[data-theme="light"] .feature-card::before {
+  background: linear-gradient(180deg, rgba(17, 24, 39, 0.05), rgba(17, 24, 39, 0.01));
+}
+
+.feature-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(59, 130, 246, 0.2);
+  box-shadow: 0 0 40px rgba(59, 130, 246, 0.06);
+}
+
+:root[data-theme="light"] .feature-card:hover {
+  border-color: rgba(17, 24, 39, 0.15);
+  box-shadow: 0 4px 24px rgba(17, 24, 39, 0.05);
+}
+
+/* ─── Input Styles ─── */
+input, textarea, select {
+  font-family: var(--font-body);
+}
+
+/* ─── Status Badge Utilities ─── */
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+/* ─── Chatbot Typing Animation ─── */
+.typing-indicator span {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-text-muted);
+  margin: 0 2px;
+}
+.typing-indicator span:nth-child(1) { animation: typing-dot 1.4s infinite 0s; }
+.typing-indicator span:nth-child(2) { animation: typing-dot 1.4s infinite 0.2s; }
+.typing-indicator span:nth-child(3) { animation: typing-dot 1.4s infinite 0.4s; }
+
+/* ─── Noise texture overlay ─── */
+.noise-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
+
+:root[data-theme="light"] .noise-overlay {
+  opacity: 0.02;
+}
+
+/* ─── Cinematic Extras ─── */
+.cinematic-lens-flare {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 140vw;
+  height: 2px;
+  transform: translateX(-50%);
+  background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.4), rgba(255, 255, 255, 1), rgba(59, 130, 246, 0.4), transparent);
+  box-shadow: 0 0 30px rgba(59, 130, 246, 1), 0 0 100px rgba(139, 92, 246, 0.8);
+  filter: blur(1px);
+  z-index: 0;
+}
+
+:root[data-theme="light"] .cinematic-lens-flare {
+  background: linear-gradient(90deg, transparent, rgba(17, 24, 39, 0.1), rgba(107, 114, 128, 0.2), rgba(17, 24, 39, 0.1), transparent);
+  box-shadow: 0 0 30px rgba(17, 24, 39, 0.1), 0 0 60px rgba(107, 114, 128, 0.05);
+}
+
+.cinematic-spotlight {
+  position: absolute;
+  top: -20vh;
+  left: 50%;
+  width: 100vw;
+  height: 80vh;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse at top, rgba(59, 130, 246, 0.18), transparent 70%);
+  filter: blur(40px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+:root[data-theme="light"] .cinematic-spotlight {
+  background: radial-gradient(ellipse at top, rgba(17, 24, 39, 0.05), transparent 70%);
+}
+
+/* ─── Smooth Theme Transitions ─── */
+*, *::before, *::after {
+  transition-property: background-color, border-color, color, fill, stroke, box-shadow;
+  transition-duration: 0.2s;
+  transition-timing-function: ease;
+}
+/* Exclude animations from theme transition override */
+.animate-spin, .animate-pulse, .animate-bounce, .animate-pulse-glow, .animate-float, [class*="animate-"] {
+  transition: none !important;
+}
+
+/* ═══ LIGHT MODE: Fix hardcoded dark-theme-only colors across all components ═══ */
+
+/* Fix bg-white/[0.0x] transparent overlays → use theme-aware subtle bg */
+:root[data-theme="light"] [class*="bg-white/[0.0"] {
+  background-color: rgba(17, 24, 39, 0.03) !important;
+}
+
+/* Fix hover:bg-white/[0.0x] states */
+:root[data-theme="light"] [class*="hover:bg-white"]:hover {
+  background-color: rgba(17, 24, 39, 0.06) !important;
+}
+
+/* Fix bg-white buttons (CTA style) → use accent in light mode */
+:root[data-theme="light"] button.bg-white,
+:root[data-theme="light"] a.bg-white {
+  background-color: var(--color-accent) !important;
+  color: #fff !important;
+}
+:root[data-theme="light"] button.bg-white:hover,
+:root[data-theme="light"] a.bg-white:hover {
+  background-color: var(--color-accent-hover) !important;
+}
+
+/* Fix hover:text-white on nav links → use text-primary */
+:root[data-theme="light"] [class*="hover:text-white"]:hover {
+  color: var(--color-text-primary) !important;
+}
+
+/* Fix static text-white that isn't on a gradient/accent bg → use text-primary */
+:root[data-theme="light"] .feature-card h3.text-white,
+:root[data-theme="light"] [class*="group-hover:text-white"]:hover {
+  color: var(--color-text-primary) !important;
+}
+
+/* Fix contact input bg */
+:root[data-theme="light"] input,
+:root[data-theme="light"] textarea,
+:root[data-theme="light"] select {
+  background-color: var(--color-bg-card) !important;
+  border-color: var(--color-border) !important;
+  color: var(--color-text-primary) !important;
+}
+:root[data-theme="light"] input:focus,
+:root[data-theme="light"] textarea:focus,
+:root[data-theme="light"] select:focus {
+  border-color: var(--color-accent) !important;
+}
+
+/* Fix stat cards and dashboard cards with semi-transparent white bg */
+:root[data-theme="light"] [class*="bg-white/"] {
+  background-color: rgba(17, 24, 39, 0.03);
+}
+
+/* Improve shadow on light mode card hovers */
+:root[data-theme="light"] [class*="shadow-black"] {
+  --tw-shadow-color: rgba(17, 24, 39, 0.08) !important;
+}
+
+/* Fix the mock dashboard preview shadow */
+:root[data-theme="light"] [class*="shadow-[0_30px_80px"] {
+  box-shadow: 0 30px 80px -20px rgba(17, 24, 39, 0.1) !important;
+}
