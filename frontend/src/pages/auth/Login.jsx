@@ -11,18 +11,22 @@ export default function Login() {
   const [selectedRole, setSelectedRole] = useState('user');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [toast, setToast] = useState('');
+  const [toast, setToast] = useState(null);
   const { login, googleLogin } = useAuth();
   const navigate = useNavigate();
+
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => {
+      setToast(null);
+    }, 4000);
+  };
 
   const handleDemoClick = (demoEmail, demoRole) => {
     setEmail(demoEmail);
     setPassword('Demo@123');
     setSelectedRole(demoRole);
-    setToast('Demo credentials applied successfully');
-    setTimeout(() => {
-      setToast('');
-    }, 3000);
+    showToast('Demo credentials applied successfully', 'success');
   };
 
   const handleGoogleLogin = () => {
@@ -43,7 +47,9 @@ export default function Login() {
       };
       navigate(routes[user.role] || '/dashboard');
     } catch (err) {
-      setError(err.response?.data?.message || 'Invalid credentials. Please try again.');
+      const errorMessage = err.response?.data?.message || 'Invalid credentials. Please try again.';
+      setError(errorMessage);
+      showToast(errorMessage, 'error');
     } finally {
       setLoading(false);
     }
@@ -249,12 +255,20 @@ export default function Login() {
             initial={{ opacity: 0, y: 50, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.9 }}
-            className="fixed bottom-6 right-6 z-50 bg-[var(--color-bg-primary)] border border-green-500/30 text-[var(--color-text-primary)] px-4 py-3 rounded-xl shadow-xl flex items-center gap-3 backdrop-blur-md"
+            className={`fixed bottom-6 right-6 z-50 bg-[var(--color-bg-primary)] border ${
+              toast.type === 'error' ? 'border-red-500/30' : 'border-green-500/30'
+            } text-[var(--color-text-primary)] px-4 py-3 rounded-xl shadow-xl flex items-center gap-3 backdrop-blur-md`}
           >
-            <div className="w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center text-green-500 font-semibold text-xs">
-              ✓
-            </div>
-            <span className="text-xs font-medium">{toast}</span>
+            {toast.type === 'error' ? (
+              <div className="w-5 h-5 rounded-full bg-red-500/20 flex items-center justify-center text-red-500 font-bold text-xs">
+                ✕
+              </div>
+            ) : (
+              <div className="w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center text-green-500 font-semibold text-xs">
+                ✓
+              </div>
+            )}
+            <span className="text-xs font-medium">{toast.message}</span>
           </motion.div>
         )}
       </AnimatePresence>
