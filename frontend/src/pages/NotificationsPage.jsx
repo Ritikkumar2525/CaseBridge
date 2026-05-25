@@ -34,7 +34,7 @@ export default function NotificationsPage() {
 
   const handleClick = async (n) => {
     if (!n.is_read) {
-      await notificationsAPI.markAsRead(n._id);
+      await notificationsAPI.markAsRead(n.id || n._id);
     }
     if (n.data?.complaint_id) {
       navigate(`/complaints/${n.data.complaint_id}`);
@@ -69,7 +69,7 @@ export default function NotificationsPage() {
               const Icon = ICONS[n.type] || Bell;
               return (
                 <div
-                  key={n._id}
+                  key={n.id || n._id}
                   onClick={() => handleClick(n)}
                   className={`flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition-all animate-fade-in ${
                     n.is_read

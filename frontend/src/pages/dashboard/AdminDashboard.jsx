@@ -128,8 +128,8 @@ export default function AdminDashboard() {
               const status = STATUSES[c.status] || {};
               return (
                 <div
-                  key={c._id}
-                  onClick={() => navigate(`/complaints/${c._id}`)}
+                  key={c.id || c._id}
+                  onClick={() => navigate(`/complaints/${c.id || c._id}`)}
                   className="flex items-center justify-between p-3 rounded-lg hover:bg-[var(--color-bg-hover)] cursor-pointer transition-all"
                 >
                   <div className="flex items-center gap-3 min-w-0">
