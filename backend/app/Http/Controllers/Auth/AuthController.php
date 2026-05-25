@@ -277,9 +277,21 @@ class AuthController extends Controller
      *
      * GET /api/auth/google
      */
-    public function googleRedirect()
+    public function googleRedirect(\Illuminate\Http\Request $request)
     {
-        return Socialite::driver('google')->stateless()->redirect();
+        $frontendUrl = $request->headers->get('referer');
+        
+        if ($frontendUrl) {
+            $parsed = parse_url($frontendUrl);
+            $frontendUrl = ($parsed['scheme'] ?? 'https') . '://' . ($parsed['host'] ?? 'localhost') . (isset($parsed['port']) ? ':' . $parsed['port'] : '');
+        } else {
+            $frontendUrl = env('FRONTEND_URL', 'http://localhost:5173');
+        }
+
+        return Socialite::driver('google')
+            ->stateless()
+            ->redirect()
+            ->withCookie(cookie('cb_frontend_url', $frontendUrl, 10, null, null, false, true, false, 'None'));
     }
 
     /**
@@ -287,7 +299,7 @@ class AuthController extends Controller
      *
      * GET /api/auth/google/callback
      */
-    public function googleCallback()
+    public function googleCallback(\Illuminate\Http\Request $request)
     {
         try {
             $googleUser = Socialite::driver('google')->stateless()->user();
@@ -322,8 +334,12 @@ class AuthController extends Controller
 
             $token = auth('api')->login($user);
             
+            // Retrieve the original frontend URL from cookie, fallback to env
+            $frontendUrl = $request->cookie('cb_frontend_url') ?? env('FRONTEND_URL', 'http://localhost:5173');
+            
             // Redirect back to frontend success page with token
-            return redirect(env('FRONTEND_URL', 'http://localhost:5173') . '/auth/success?token=' . $token);
+            return redirect($frontendUrl . '/auth/success?token=' . $token)
+                ->withoutCookie('cb_frontend_url');
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Google Authentication failed.', 'error' => $e->getMessage()], 400);
         }

@@ -10,28 +10,27 @@ export default function UserDashboard() {
   const [stats, setStats] = useState(null);
   const [charts, setCharts] = useState(null);
   const [recent, setRecent] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loadingStats, setLoadingStats] = useState(true);
+  const [loadingCharts, setLoadingCharts] = useState(true);
+  const [loadingRecent, setLoadingRecent] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    Promise.all([
-      dashboardAPI.getStats(),
-      dashboardAPI.getCharts(),
-      dashboardAPI.getRecent(),
-    ]).then(([statsRes, chartsRes, recentRes]) => {
-      setStats(statsRes.data.data);
-      setCharts(chartsRes.data.data);
-      setRecent(recentRes.data.data);
-    }).catch(console.error).finally(() => setLoading(false));
-  }, []);
+    dashboardAPI.getStats()
+      .then(res => setStats(res.data.data))
+      .catch(console.error)
+      .finally(() => setLoadingStats(false));
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-[var(--color-accent)] border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
+    dashboardAPI.getCharts()
+      .then(res => setCharts(res.data.data))
+      .catch(console.error)
+      .finally(() => setLoadingCharts(false));
+
+    dashboardAPI.getRecent()
+      .then(res => setRecent(res.data.data || []))
+      .catch(console.error)
+      .finally(() => setLoadingRecent(false));
+  }, []);
 
   const statCards = [
     { label: 'Total Complaints', value: stats?.total_complaints || 0, icon: FileText, color: 'var(--color-accent)' },
@@ -62,7 +61,11 @@ export default function UserDashboard() {
                 </div>
                 <ArrowRight size={14} className="text-[var(--color-text-muted)] opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
-              <p className="text-2xl font-bold">{card.value}</p>
+              {loadingStats ? (
+                <div className="h-8 w-16 bg-[var(--color-bg-hover)] animate-pulse rounded mt-1 mb-2" />
+              ) : (
+                <p className="text-2xl font-bold">{card.value}</p>
+              )}
               <p className="text-sm text-[var(--color-text-muted)] mt-1">{card.label}</p>
             </div>
           ))}
@@ -74,57 +77,71 @@ export default function UserDashboard() {
           <div className="p-6 rounded-xl bg-[var(--color-bg-card)] border border-[var(--color-border)]">
             <h3 className="text-sm font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider mb-4">Status Distribution</h3>
             <div className="h-48">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={charts?.status_distribution || []}
-                    cx="50%" cy="50%"
-                    innerRadius={50} outerRadius={75}
-                    paddingAngle={3}
-                    dataKey="value"
-                  >
-                    {(charts?.status_distribution || []).map((_, i) => (
-                      <Cell key={i} fill={statusColors[i]} />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    contentStyle={{ backgroundColor: 'var(--color-bg-tertiary)', border: '1px solid var(--color-border)', borderRadius: '8px', fontSize: '12px' }}
-                    itemStyle={{ color: 'var(--color-text-primary)' }}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="flex flex-wrap gap-3 mt-2 justify-center">
-              {(charts?.status_distribution || []).filter(s => s.value > 0).map((s, i) => (
-                <div key={s.name} className="flex items-center gap-1.5 text-xs text-[var(--color-text-muted)]">
-                  <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: statusColors[i] }} />
-                  {s.name}
+              {loadingCharts ? (
+                <div className="w-full h-full flex items-center justify-center">
+                  <div className="w-8 h-8 border-2 border-[var(--color-accent)] border-t-transparent rounded-full animate-spin" />
                 </div>
-              ))}
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={charts?.status_distribution || []}
+                      cx="50%" cy="50%"
+                      innerRadius={50} outerRadius={75}
+                      paddingAngle={3}
+                      dataKey="value"
+                    >
+                      {(charts?.status_distribution || []).map((_, i) => (
+                        <Cell key={i} fill={statusColors[i]} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{ backgroundColor: 'var(--color-bg-tertiary)', border: '1px solid var(--color-border)', borderRadius: '8px', fontSize: '12px' }}
+                      itemStyle={{ color: 'var(--color-text-primary)' }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              )}
             </div>
+            {!loadingCharts && (
+              <div className="flex flex-wrap gap-3 mt-2 justify-center">
+                {(charts?.status_distribution || []).filter(s => s.value > 0).map((s, i) => (
+                  <div key={s.name} className="flex items-center gap-1.5 text-xs text-[var(--color-text-muted)]">
+                    <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: statusColors[i] }} />
+                    {s.name}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Trend Chart */}
           <div className="lg:col-span-2 p-6 rounded-xl bg-[var(--color-bg-card)] border border-[var(--color-border)]">
             <h3 className="text-sm font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider mb-4">Complaint Trend (30 Days)</h3>
             <div className="h-48">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={charts?.trend_data || []}>
-                  <defs>
-                    <linearGradient id="colorComplaints" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="var(--color-accent)" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="var(--color-accent)" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-                  <XAxis dataKey="date" tick={{ fontSize: 10, fill: 'var(--color-text-muted)' }} tickLine={false} axisLine={false} />
-                  <YAxis tick={{ fontSize: 10, fill: 'var(--color-text-muted)' }} tickLine={false} axisLine={false} />
-                  <Tooltip
-                    contentStyle={{ backgroundColor: 'var(--color-bg-tertiary)', border: '1px solid var(--color-border)', borderRadius: '8px', fontSize: '12px' }}
-                  />
-                  <Area type="monotone" dataKey="complaints" stroke="var(--color-accent)" fill="url(#colorComplaints)" strokeWidth={2} />
-                </AreaChart>
-              </ResponsiveContainer>
+              {loadingCharts ? (
+                <div className="w-full h-full flex items-center justify-center">
+                  <div className="w-8 h-8 border-2 border-[var(--color-accent)] border-t-transparent rounded-full animate-spin" />
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={charts?.trend_data || []}>
+                    <defs>
+                      <linearGradient id="colorComplaints" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="var(--color-accent)" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="var(--color-accent)" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
+                    <XAxis dataKey="date" tick={{ fontSize: 10, fill: 'var(--color-text-muted)' }} tickLine={false} axisLine={false} />
+                    <YAxis tick={{ fontSize: 10, fill: 'var(--color-text-muted)' }} tickLine={false} axisLine={false} />
+                    <Tooltip
+                      contentStyle={{ backgroundColor: 'var(--color-bg-tertiary)', border: '1px solid var(--color-border)', borderRadius: '8px', fontSize: '12px' }}
+                    />
+                    <Area type="monotone" dataKey="complaints" stroke="var(--color-accent)" fill="url(#colorComplaints)" strokeWidth={2} />
+                  </AreaChart>
+                </ResponsiveContainer>
+              )}
             </div>
           </div>
         </div>
@@ -141,7 +158,11 @@ export default function UserDashboard() {
             </button>
           </div>
           <div className="space-y-2">
-            {recent.length === 0 ? (
+            {loadingRecent ? (
+              <div className="py-8 flex items-center justify-center">
+                <div className="w-8 h-8 border-2 border-[var(--color-accent)] border-t-transparent rounded-full animate-spin" />
+              </div>
+            ) : recent.length === 0 ? (
               <div className="text-center py-8">
                 <FileText size={40} className="mx-auto text-[var(--color-text-muted)] mb-3" />
                 <p className="text-sm text-[var(--color-text-muted)]">No complaints yet.</p>
