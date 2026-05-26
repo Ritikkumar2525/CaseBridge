@@ -1,15 +1,43 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../components/layout/Header';
-import { complaintsAPI } from '../../api';
+import { complaintsAPI, organizationsAPI } from '../../api';
+import { useAuth } from '../../contexts/AuthContext';
 import { ArrowLeft, Upload, Loader2, Send } from 'lucide-react';
 
 export default function NewComplaint() {
-  const [form, setForm] = useState({ title: '', description: '', priority: 'medium', category: '' });
+  const [form, setForm] = useState({ title: '', description: '', priority: 'medium', category: '', organization_id: '' });
+  const [organizations, setOrganizations] = useState([]);
+  const [loadingOrgs, setLoadingOrgs] = useState(true);
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    organizationsAPI.list({ per_page: 100 })
+      .then((res) => {
+        const orgList = res.data.data.data || [];
+        setOrganizations(orgList);
+        
+        // Default to user's assigned organization if set
+        if (user?.organization_id) {
+          const userOrg = orgList.find(o => o.id === user.organization_id || o._id === user.organization_id);
+          if (userOrg) {
+            setForm(f => ({ ...f, organization_id: userOrg.id || userOrg._id }));
+          }
+        } else if (orgList.length > 0) {
+          setForm(f => ({ ...f, organization_id: orgList[0].id || orgList[0]._id }));
+        }
+      })
+      .catch(console.error)
+      .finally(() => setLoadingOrgs(false));
+  }, [user]);
+
+  const handleOrgChange = (orgId) => {
+    setForm(f => ({ ...f, organization_id: orgId, category: '' }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -70,6 +98,26 @@ export default function NewComplaint() {
               className={inputClass + " resize-none"}
             />
           </div>
+          <div>
+            <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-2">Organization</label>
+            {loadingOrgs ? (
+              <div className="h-[46px] w-full bg-[var(--color-bg-tertiary)] animate-pulse rounded-lg border border-[var(--color-border)]" />
+            ) : (
+              <select
+                value={form.organization_id}
+                onChange={(e) => handleOrgChange(e.target.value)}
+                required
+                className={inputClass}
+              >
+                <option value="">Select Organization</option>
+                {organizations.map(org => (
+                  <option key={org.id || org._id} value={org.id || org._id}>
+                    {org.name}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -82,12 +130,30 @@ export default function NewComplaint() {
             </div>
             <div>
               <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-2">Category</label>
-              <input
-                value={form.category}
-                onChange={(e) => setForm(f => ({ ...f, category: e.target.value }))}
-                placeholder="e.g., Infrastructure"
-                className={inputClass}
-              />
+              {(() => {
+                const selectedOrg = organizations.find(o => (o.id || o._id) === form.organization_id);
+                const categories = selectedOrg?.settings?.categories || [];
+                return categories.length > 0 ? (
+                  <select
+                    value={form.category}
+                    onChange={(e) => setForm(f => ({ ...f, category: e.target.value }))}
+                    required
+                    className={inputClass}
+                  >
+                    <option value="">Select Category</option>
+                    {categories.map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    value={form.category}
+                    onChange={(e) => setForm(f => ({ ...f, category: e.target.value }))}
+                    placeholder="e.g., Infrastructure"
+                    className={inputClass}
+                  />
+                );
+              })()}
             </div>
           </div>
 
