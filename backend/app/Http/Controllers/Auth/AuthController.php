@@ -35,9 +35,9 @@ class AuthController extends Controller
             'email' => 'required|email|unique:users,email',
             'password' => ['required', 'string', 'confirmed', Password::min(8)->mixedCase()->letters()->numbers()->symbols()],
             'role' => 'sometimes|in:user,staff,org_admin',
-            'organization_id' => 'required_if:role,user,staff|string',
-            'organization_name' => 'required_if:role,org_admin|string|min:2|max:200',
-            'phone' => 'sometimes|string|max:20',
+            'organization_id' => 'required_if:role,user,staff|nullable|string',
+            'organization_name' => 'required_if:role,org_admin|nullable|string|min:2|max:200',
+            'phone' => 'sometimes|nullable|string|max:20',
         ]);
 
         if ($validator->fails()) {

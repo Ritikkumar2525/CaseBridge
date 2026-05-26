@@ -67,7 +67,12 @@ export default function Register() {
       await register(form);
       navigate('/login');
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed.');
+      if (err.response?.data?.errors) {
+        const errorList = Object.values(err.response.data.errors).flat();
+        setError(errorList.join(' ') || err.response.data.message);
+      } else {
+        setError(err.response?.data?.message || 'Registration failed.');
+      }
     } finally {
       setLoading(false);
     }
