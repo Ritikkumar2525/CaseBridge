@@ -46,6 +46,7 @@ export const chatAPI = {
 
 export const organizationsAPI = {
   list: (params) => api.get('/organizations', { params }),
+  publicList: () => api.get('/organizations/public'),
   get: (id) => api.get(`/organizations/${id}`),
   create: (data) => api.post('/organizations', data),
   update: (id, data) => api.put(`/organizations/${id}`, data),

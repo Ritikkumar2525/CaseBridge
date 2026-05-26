@@ -19,7 +19,7 @@ export default function Register() {
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   useEffect(() => {
-    organizationsAPI.list({ per_page: 100 })
+    organizationsAPI.publicList()
       .then((res) => {
         setOrganizations(res.data.data.data || []);
       })

@@ -53,6 +53,34 @@ class OrganizationController extends Controller
     }
 
     /**
+     * List active organizations publicly (only id and name for dropdown).
+     *
+     * GET /api/organizations/public
+     */
+    public function publicList(): JsonResponse
+    {
+        $organizations = Organization::where('is_active', true)
+            ->orderBy('name', 'asc')
+            ->get(['_id', 'name']);
+
+        // Format to map _id as id
+        $formatted = $organizations->map(function ($org) {
+            return [
+                'id' => (string) $org->_id,
+                '_id' => (string) $org->_id,
+                'name' => $org->name,
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'data' => $formatted
+            ],
+        ]);
+    }
+
+    /**
      * Create a new organization.
      * Super admin only.
      *

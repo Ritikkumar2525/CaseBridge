@@ -23,6 +23,7 @@ use App\Http\Controllers\UserController;
 // ─── Public Routes ──────────────────────────────────────────
 
 Route::post('/contact', [ContactController::class, 'submit']);
+Route::get('/organizations/public', [OrganizationController::class, 'publicList']);
 
 
 Route::prefix('auth')->group(function () {
