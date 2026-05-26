@@ -35,7 +35,7 @@ class AuthController extends Controller
             'email' => 'required|email|unique:users,email',
             'password' => ['required', 'string', 'confirmed', Password::min(8)->mixedCase()->letters()->numbers()->symbols()],
             'role' => 'sometimes|in:user,staff,org_admin',
-            'organization_id' => 'sometimes|string',
+            'organization_id' => 'required_if:role,user,staff|string',
             'phone' => 'sometimes|string|max:20',
         ]);
 

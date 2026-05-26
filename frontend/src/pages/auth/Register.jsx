@@ -1,19 +1,33 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { Layers, ArrowRight, ArrowLeft, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import AuthVisual from './AuthVisual';
 import { useGoogleLogin } from '@react-oauth/google';
+import { organizationsAPI } from '../../api';
 
 export default function Register() {
-  const [form, setForm] = useState({ name: '', email: '', password: '', password_confirmation: '', role: 'user' });
+  const [form, setForm] = useState({ name: '', email: '', password: '', password_confirmation: '', role: 'user', organization_id: '' });
+  const [organizations, setOrganizations] = useState([]);
+  const [loadingOrgs, setLoadingOrgs] = useState(true);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { register, googleLogin } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+
+  useEffect(() => {
+    organizationsAPI.list({ per_page: 100 })
+      .then((res) => {
+        setOrganizations(res.data.data.data || []);
+      })
+      .catch((err) => {
+        console.error('Failed to load organizations', err);
+      })
+      .finally(() => setLoadingOrgs(false));
+  }, []);
 
   const executeLoginGoogle = async (credential) => {
     setError('');
@@ -107,7 +121,7 @@ export default function Register() {
               <button
                 key={role.id}
                 type="button"
-                onClick={() => setForm({ ...form, role: role.id })}
+                onClick={() => setForm({ ...form, role: role.id, organization_id: '' })}
                 className={`flex-1 py-2 px-1 text-xs font-semibold rounded-md transition-all duration-300 relative z-10 ${
                   form.role === role.id 
                     ? 'text-[var(--color-accent)]' 
@@ -142,6 +156,29 @@ export default function Register() {
             <label htmlFor="reg-email" className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">Email address</label>
             <input id="reg-email" name="email" type="email" value={form.email} onChange={handleChange} required placeholder="you@example.com" className="w-full px-4 py-2.5 rounded-lg bg-[var(--color-bg-tertiary)] border border-[var(--color-border)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-accent)] focus:ring-1 focus:ring-[var(--color-accent)]/50 transition-all duration-200 text-sm" />
           </div>
+
+          {(form.role === 'user' || form.role === 'staff') && (
+            <div>
+              <label htmlFor="organization_id" className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">Organization</label>
+              {loadingOrgs ? (
+                <div className="h-10 w-full bg-[var(--color-bg-tertiary)] animate-pulse rounded-lg border border-[var(--color-border)]" />
+              ) : (
+                <select 
+                  id="organization_id" 
+                  name="organization_id" 
+                  value={form.organization_id} 
+                  onChange={handleChange} 
+                  required 
+                  className={inputClass}
+                >
+                  <option value="" className="bg-[var(--color-bg-tertiary)]">Select your Organization</option>
+                  {organizations.map(org => (
+                    <option key={org.id || org._id} value={org.id || org._id} className="bg-[var(--color-bg-tertiary)]">{org.name}</option>
+                  ))}
+                </select>
+              )}
+            </div>
+          )}
 
           <div>
             <label htmlFor="reg-password" className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">Password</label>
