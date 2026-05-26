@@ -36,6 +36,7 @@ class AuthController extends Controller
             'password' => ['required', 'string', 'confirmed', Password::min(8)->mixedCase()->letters()->numbers()->symbols()],
             'role' => 'sometimes|in:user,staff,org_admin',
             'organization_id' => 'required_if:role,user,staff|string',
+            'organization_name' => 'required_if:role,org_admin|string|min:2|max:200',
             'phone' => 'sometimes|string|max:20',
         ]);
 
@@ -47,19 +48,38 @@ class AuthController extends Controller
             ], 422);
         }
 
-        // Only super admins can create staff/admin accounts
         // Respect the role explicitly requested by the frontend UI
         $role = $request->input('role', 'user');
+        $orgId = $request->organization_id;
+
+        if ($role === 'org_admin') {
+            $org = \App\Models\Organization::create([
+                'name' => $request->organization_name,
+                'slug' => \Illuminate\Support\Str::slug($request->organization_name) . '-' . \Illuminate\Support\Str::random(4),
+                'type' => 'other',
+                'is_active' => true,
+                'contact_email' => $request->email,
+                'settings' => [
+                    'categories' => ['General', 'Technical', 'Billing'],
+                    'auto_assign' => false,
+                ],
+            ]);
+            $orgId = (string) $org->_id;
+        }
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => $request->password, // Auto-hashed via cast
             'role' => $role,
-            'organization_id' => $request->organization_id,
+            'organization_id' => $orgId,
             'phone' => $request->phone,
             'is_active' => true,
         ]);
+
+        if ($role === 'org_admin' && isset($org)) {
+            $org->update(['created_by' => (string) $user->_id]);
+        }
 
         // Generate JWT token for the new user
         $token = auth('api')->login($user);

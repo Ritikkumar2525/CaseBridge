@@ -8,7 +8,7 @@ import { useGoogleLogin } from '@react-oauth/google';
 import { organizationsAPI } from '../../api';
 
 export default function Register() {
-  const [form, setForm] = useState({ name: '', email: '', password: '', password_confirmation: '', role: 'user', organization_id: '' });
+  const [form, setForm] = useState({ name: '', email: '', password: '', password_confirmation: '', role: 'user', organization_id: '', organization_name: '' });
   const [organizations, setOrganizations] = useState([]);
   const [loadingOrgs, setLoadingOrgs] = useState(true);
   const [error, setError] = useState('');
@@ -151,6 +151,21 @@ export default function Register() {
             <label htmlFor="name" className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">Full name</label>
             <input id="name" name="name" value={form.name} onChange={handleChange} required placeholder="John Doe" className="w-full px-4 py-2.5 rounded-lg bg-[var(--color-bg-tertiary)] border border-[var(--color-border)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-accent)] focus:ring-1 focus:ring-[var(--color-accent)]/50 transition-all duration-200 text-sm" />
           </div>
+
+          {form.role === 'org_admin' && (
+            <div>
+              <label htmlFor="organization_name" className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">Organization Name</label>
+              <input 
+                id="organization_name" 
+                name="organization_name" 
+                value={form.organization_name} 
+                onChange={handleChange} 
+                required 
+                placeholder="e.g., City General Hospital" 
+                className="w-full px-4 py-2.5 rounded-lg bg-[var(--color-bg-tertiary)] border border-[var(--color-border)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-accent)] focus:ring-1 focus:ring-[var(--color-accent)]/50 transition-all duration-200 text-sm"
+              />
+            </div>
+          )}
 
           <div>
             <label htmlFor="reg-email" className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">Email address</label>

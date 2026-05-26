@@ -61,7 +61,7 @@ class OrganizationController extends Controller
     {
         $organizations = Organization::where('is_active', true)
             ->orderBy('name', 'asc')
-            ->get(['_id', 'name']);
+            ->get(['_id', 'name', 'settings']);
 
         // Format to map _id as id
         $formatted = $organizations->map(function ($org) {
@@ -69,6 +69,7 @@ class OrganizationController extends Controller
                 'id' => (string) $org->_id,
                 '_id' => (string) $org->_id,
                 'name' => $org->name,
+                'settings' => $org->settings,
             ];
         });
 

@@ -16,7 +16,7 @@ export default function NewComplaint() {
   const { user } = useAuth();
 
   useEffect(() => {
-    organizationsAPI.list({ per_page: 100 })
+    organizationsAPI.publicList()
       .then((res) => {
         const orgList = res.data.data.data || [];
         setOrganizations(orgList);
