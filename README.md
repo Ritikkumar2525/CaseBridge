@@ -1,5 +1,5 @@
 <div align="center">
-  <h1>🌉 CaseBridge</h1>
+  <h1>CaseBridge</h1>
   <p>A modern, multi-tenant complaint management platform equipped with real-time updates and secure communications.</p>
 
   <p>
